@@ -5047,6 +5047,8 @@ void StubGenerator::generate_compiler_stubs() {
 
   generate_aes_stubs();
 
+  generate_des_stubs();
+
   generate_ghash_stubs();
 
   generate_chacha_stubs();
@@ -5224,6 +5226,7 @@ void StubGenerator::init_AOTAddressTable(GrowableArray<address>& external_addres
   init_AOTAddressTable_aes(external_addresses);
   init_AOTAddressTable_cbrt(external_addresses);
   init_AOTAddressTable_chacha(external_addresses);
+  init_AOTAddressTable_des(external_addresses);
   // constants publishes for all of address use by cos and almost all of sin
   init_AOTAddressTable_constants(external_addresses);
   init_AOTAddressTable_dilithium(external_addresses);

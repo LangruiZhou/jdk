@@ -737,6 +737,9 @@
   do_stub(compiler, aescrypt_decryptBlock)                              \
   do_entry(compiler, aescrypt_decryptBlock, aescrypt_decryptBlock,      \
            aescrypt_decryptBlock)                                       \
+  do_stub(compiler, descrypt_cipherBlock)                               \
+  do_entry(compiler, descrypt_cipherBlock, descrypt_cipherBlock,        \
+           descrypt_cipherBlock)                                        \
   do_stub(compiler, cipherBlockChaining_encryptAESCrypt)                \
   do_entry(compiler, cipherBlockChaining_encryptAESCrypt,               \
            cipherBlockChaining_encryptAESCrypt,                         \

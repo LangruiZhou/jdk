@@ -493,6 +493,11 @@ class methodHandle;
    do_name(     encryptBlock_name,                                 "implEncryptBlock")                                  \
    do_name(     decryptBlock_name,                                 "implDecryptBlock")                                  \
    do_signature(byteArray_int_byteArray_int_signature,             "([BI[BI)V")                                         \
+                                                                                                                       \
+  /* support for com.sun.crypto.provider.DESCrypt */                                                                   \
+  do_class(com_sun_crypto_provider_descrypt,      "com/sun/crypto/provider/DESCrypt")                                  \
+  do_intrinsic(_descrypt_cipherBlock, com_sun_crypto_provider_descrypt, cipherBlock_name, byteArray_int_byteArray_int_signature, F_R) \
+   do_name(     cipherBlock_name,                                 "cipherBlock")                                       \
                                                                                                                         \
   do_class(com_sun_crypto_provider_cipherBlockChaining,            "com/sun/crypto/provider/CipherBlockChaining")       \
    do_intrinsic(_cipherBlockChaining_encryptAESCrypt, com_sun_crypto_provider_cipherBlockChaining, encrypt_name, byteArray_int_int_byteArray_int_signature, F_R)   \

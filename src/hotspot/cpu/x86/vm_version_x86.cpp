@@ -1229,6 +1229,14 @@ void VM_Version::get_processor_features() {
     }
   }
 
+  // The DES block stubs use baseline x86-64 integer instructions. They are
+  // compiler stubs, so leave them disabled on builds without C2.
+#ifdef COMPILER2
+  if (FLAG_IS_DEFAULT(UseDESIntrinsics)) {
+    FLAG_SET_DEFAULT(UseDESIntrinsics, true);
+  }
+#endif
+
   if (UseCLMUL && (UseSSE > 2)) {
     if (FLAG_IS_DEFAULT(UseCRC32Intrinsics)) {
       UseCRC32Intrinsics = true;

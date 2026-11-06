@@ -452,6 +452,7 @@ public:
   do_var(bool,  UseChaCha20Intrinsics) \
   do_var(bool,  UseCRC32CIntrinsics) \
   do_var(bool,  UseCRC32Intrinsics) \
+  do_var(bool,  UseDESIntrinsics) \
   do_var(bool,  UseDilithiumIntrinsics) \
   do_var(bool,  UseGHASHIntrinsics) \
   do_var(bool,  UseIntPoly25519Intrinsics) \

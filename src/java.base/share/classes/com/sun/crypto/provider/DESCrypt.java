@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2024, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2026, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -26,6 +26,7 @@
 package com.sun.crypto.provider;
 
 import java.security.InvalidKeyException;
+import jdk.internal.vm.annotation.IntrinsicCandidate;
 
 /**
  * This is the internal DES class responsible for encryption and
@@ -585,6 +586,7 @@ class DESCrypt extends SymmetricCipher implements DESConstants {
     }
 
 
+    @IntrinsicCandidate
     void cipherBlock(byte[] in, int inOffset, byte[] out, int outOffset) {
         byte[] key;
         int temp;

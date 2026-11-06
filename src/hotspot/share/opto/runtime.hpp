@@ -155,6 +155,7 @@ class OptoRuntime : public AllStatic {
   static const TypeFunc* _array_sort_Type;
   static const TypeFunc* _array_partition_Type;
   static const TypeFunc* _aescrypt_block_Type;
+  static const TypeFunc* _descrypt_cipherBlock_Type;
   static const TypeFunc* _cipherBlockChaining_aescrypt_Type;
   static const TypeFunc* _electronicCodeBook_aescrypt_Type;
   static const TypeFunc* _counterMode_aescrypt_Type;
@@ -495,6 +496,12 @@ private:
   static inline const TypeFunc* aescrypt_block_Type() {
     assert(_aescrypt_block_Type != nullptr, "should be initialized");
     return _aescrypt_block_Type;
+  }
+
+  // for DES block encrypt/decrypt operations, three pointers and a flag returning void
+  static inline const TypeFunc* descrypt_cipherBlock_Type() {
+    assert(_descrypt_cipherBlock_Type != nullptr, "should be initialized");
+    return _descrypt_cipherBlock_Type;
   }
 
   // for cipherBlockChaining calls of aescrypt encrypt/decrypt, four pointers and a length, returning int

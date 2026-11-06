@@ -419,6 +419,10 @@ class StubGenerator: public StubCodeGenerator {
                  int vector_len, KRegister ktmp, XMMRegister ones);
   void generate_aes_stubs();
 
+  // DES intrinsic stubs
+  address generate_descrypt_cipherBlock();
+  void generate_des_stubs();
+
 
   // GHASH stubs
 
@@ -660,6 +664,7 @@ class StubGenerator: public StubCodeGenerator {
   static void init_AOTAddressTable_aes(GrowableArray<address>& external_addresses);
   static void init_AOTAddressTable_cbrt(GrowableArray<address>& external_addresses);
   static void init_AOTAddressTable_chacha(GrowableArray<address>& external_addresses);
+  static void init_AOTAddressTable_des(GrowableArray<address>& external_addresses);
   static void init_AOTAddressTable_constants(GrowableArray<address>& external_addresses);
   static void init_AOTAddressTable_dilithium(GrowableArray<address>& external_addresses);
   static void init_AOTAddressTable_exp(GrowableArray<address>& external_addresses);

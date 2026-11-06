@@ -608,6 +608,8 @@ bool LibraryCallKit::try_to_inline(int predicate) {
   case vmIntrinsics::_aescrypt_encryptBlock:
   case vmIntrinsics::_aescrypt_decryptBlock:    return inline_aescrypt_Block(intrinsic_id());
 
+  case vmIntrinsics::_descrypt_cipherBlock:     return inline_descrypt_cipherBlock();
+
   case vmIntrinsics::_cipherBlockChaining_encryptAESCrypt:
   case vmIntrinsics::_cipherBlockChaining_decryptAESCrypt:
     return inline_cipherBlockChaining_AESCrypt(intrinsic_id());
@@ -8356,6 +8358,59 @@ bool LibraryCallKit::inline_aescrypt_Block(vmIntrinsics::ID id) {
   make_runtime_call(RC_LEAF|RC_NO_FP, OptoRuntime::aescrypt_block_Type(),
                     stubAddr, stubName, TypePtr::BOTTOM,
                     src_start, dest_start, k_start);
+
+  return true;
+}
+
+//------------------------------inline_descrypt_cipherBlock---------------------
+bool LibraryCallKit::inline_descrypt_cipherBlock() {
+  address stubAddr = StubRoutines::descrypt_cipherBlock();
+  if (stubAddr == nullptr) {
+    return false;
+  }
+
+  Node* descrypt_object = argument(0);
+  Node* src             = argument(1);
+  Node* src_offset      = argument(2);
+  Node* dest            = argument(3);
+  Node* dest_offset     = argument(4);
+
+  src = must_be_not_null(src, true);
+  dest = must_be_not_null(dest, true);
+
+  const TypeAryPtr* src_type = src->Value(&_gvn)->isa_aryptr();
+  const TypeAryPtr* dest_type = dest->Value(&_gvn)->isa_aryptr();
+  assert(src_type != nullptr && src_type->elem() != Type::BOTTOM &&
+         dest_type != nullptr && dest_type->elem() != Type::BOTTOM,
+         "args are strange");
+
+  RegionNode* bailout = create_bailout();
+  generate_string_range_check(src, src_offset, intcon(8), false, bailout);
+  generate_string_range_check(dest, dest_offset, intcon(8), false, bailout);
+  if (check_bailout(bailout)) {
+    return true;
+  }
+
+  Node* src_start = array_element_address(src, src_offset, T_BYTE);
+  Node* dest_start = array_element_address(dest, dest_offset, T_BYTE);
+
+  Node* key = load_field_from_object(descrypt_object, "expandedKey", "[B");
+  if (key == nullptr) {
+    return false;
+  }
+  key = must_be_not_null(key, true);
+
+  Node* decrypting = load_field_from_object(descrypt_object, "decrypting", "Z");
+  if (decrypting == nullptr) {
+    return false;
+  }
+
+  Node* key_start = array_element_address(key, intcon(0), T_BYTE);
+
+  make_runtime_call(RC_LEAF | RC_NO_FP,
+                    OptoRuntime::descrypt_cipherBlock_Type(),
+                    stubAddr, "descrypt_cipherBlock", TypePtr::BOTTOM,
+                    src_start, dest_start, key_start, decrypting);
 
   return true;
 }
