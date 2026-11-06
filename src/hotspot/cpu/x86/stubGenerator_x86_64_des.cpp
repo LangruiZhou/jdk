@@ -230,7 +230,7 @@ static void emit_des_initial_permutation(MacroAssembler* masm, Register from,
 
 static void emit_des_rounds(MacroAssembler* masm,
                             Register left, Register right, Register temp,
-                            Register key_offset, Register key_step,
+                            Register key_offset, Register key_step, int key_step_imm,
                             Register count, Register key, Register s_base,
                             Register index, Register byte, Register value) {
   Label round;
@@ -268,7 +268,11 @@ static void emit_des_rounds(MacroAssembler* masm,
   masm->movl(left, right);
   masm->movl(right, index);
 
-  masm->addl(key_offset, key_step);
+  if (key_step_imm != 0) {
+    masm->addl(key_offset, key_step_imm);
+  } else {
+    masm->addl(key_offset, key_step);
+  }
   masm->subl(count, 1);
   masm->jcc(Assembler::notZero, round);
 
@@ -384,7 +388,7 @@ address StubGenerator::generate_descrypt_cipherBlock() {
   __ movl(count, 16);
   emit_des_initial_permutation(_masm, from, left, right, index, byte, value, table_base);
   __ lea(table_base, ExternalAddress((address)DES_S_BOXES));
-  emit_des_rounds(_masm, left, right, temp, key_offset, key_step, count, key,
+  emit_des_rounds(_masm, left, right, temp, key_offset, key_step, 0, count, key,
                   table_base, index, byte, value);
   __ lea(table_base, ExternalAddress((address)DES_PERMUTATION_TABLES));
   emit_des_final_permutation(_masm, to, left, right, temp, index, value, byte, table_base);
@@ -405,9 +409,141 @@ address StubGenerator::generate_descrypt_cipherBlock() {
   return start;
 }
 
+// Arguments:
+//   c_rarg0 - source byte array address
+//   c_rarg1 - destination byte array address
+//   c_rarg2 - key1 expanded byte array address
+//   c_rarg3 - key2 expanded byte array address
+//   c_rarg4 - key3 expanded byte array address (on stack on Win64)
+address StubGenerator::generate_desede_cryptBlock(bool decrypting) {
+  assert(UseDESedeIntrinsics, "DESede intrinsic must be enabled");
+
+  StubId stub_id = decrypting ? StubId::stubgen_desede_decryptBlock_id
+                              : StubId::stubgen_desede_encryptBlock_id;
+  int entry_count = StubInfo::entry_count(stub_id);
+  assert(entry_count == 1, "sanity check");
+  address start = load_archive_data(stub_id);
+  if (start != nullptr) {
+    return start;
+  }
+
+  __ align(CodeEntryAlignment);
+  StubCodeMark mark(this, stub_id);
+  start = __ pc();
+
+  const Register from       = c_rarg0;
+  const Register to         = c_rarg1;
+  const Register left       = rbx;
+  const Register right      = r12;
+  const Register temp       = r13;
+  const Register key_offset = r14;
+  const Register count      = r15;
+  const Register table_base = r11;
+  const Register index      = rax;
+  const Register byte       = r9;
+  const Register value      = r10;
+  const Register key        = from; // source has been consumed after the initial permutation
+#ifndef _WIN64
+  const Register key1       = c_rarg2;
+  const Register key2       = c_rarg3;
+  const Register key3       = c_rarg4;
+#else
+  const Register key1       = r8;
+#endif
+
+  __ enter(); // required for proper stackwalking of RuntimeStub frame
+  __ push(rbx);
+  __ push(r12);
+  __ push(r13);
+  __ push(r14);
+  __ push(r15);
+#ifdef _WIN64
+  __ push(r9); // preserve key2, since r9 is used as scratch by the shared helpers
+#endif
+
+  emit_des_initial_permutation(_masm, from, left, right, index, byte, value, table_base);
+  __ lea(table_base, ExternalAddress((address)DES_S_BOXES));
+
+  if (decrypting) {
+#ifndef _WIN64
+    __ movptr(key, key3);
+#else
+    __ movptr(key, Address(rbp, 6 * wordSize));
+#endif
+    __ movl(key_offset, 120);
+    __ movl(count, 16);
+    emit_des_rounds(_masm, left, right, temp, key_offset, noreg, -8, count, key,
+                    table_base, index, byte, value);
+
+#ifndef _WIN64
+    __ movptr(key, key2);
+#else
+    __ movptr(key, Address(rsp, 0));
+#endif
+    __ movl(key_offset, 0);
+    __ movl(count, 16);
+    emit_des_rounds(_masm, left, right, temp, key_offset, noreg, 8, count, key,
+                    table_base, index, byte, value);
+
+    __ movptr(key, key1);
+    __ movl(key_offset, 120);
+    __ movl(count, 16);
+    emit_des_rounds(_masm, left, right, temp, key_offset, noreg, -8, count, key,
+                    table_base, index, byte, value);
+  } else {
+    __ movptr(key, key1);
+    __ movl(key_offset, 0);
+    __ movl(count, 16);
+    emit_des_rounds(_masm, left, right, temp, key_offset, noreg, 8, count, key,
+                    table_base, index, byte, value);
+
+#ifndef _WIN64
+    __ movptr(key, key2);
+#else
+    __ movptr(key, Address(rsp, 0));
+#endif
+    __ movl(key_offset, 120);
+    __ movl(count, 16);
+    emit_des_rounds(_masm, left, right, temp, key_offset, noreg, -8, count, key,
+                    table_base, index, byte, value);
+
+#ifndef _WIN64
+    __ movptr(key, key3);
+#else
+    __ movptr(key, Address(rbp, 6 * wordSize));
+#endif
+    __ movl(key_offset, 0);
+    __ movl(count, 16);
+    emit_des_rounds(_masm, left, right, temp, key_offset, noreg, 8, count, key,
+                    table_base, index, byte, value);
+  }
+
+  __ lea(table_base, ExternalAddress((address)DES_PERMUTATION_TABLES));
+  emit_des_final_permutation(_masm, to, left, right, temp, index, value, byte, table_base);
+
+  __ xorptr(rax, rax);
+#ifdef _WIN64
+  __ pop(r9); // key2 slot
+#endif
+  __ pop(r15);
+  __ pop(r14);
+  __ pop(r13);
+  __ pop(r12);
+  __ pop(rbx);
+  __ leave();
+  __ ret(0);
+
+  store_archive_data(stub_id, start, __ pc());
+  return start;
+}
+
 void StubGenerator::generate_des_stubs() {
   if (UseDESIntrinsics) {
     StubRoutines::_descrypt_cipherBlock = generate_descrypt_cipherBlock();
+  }
+  if (UseDESedeIntrinsics) {
+    StubRoutines::_desede_encryptBlock = generate_desede_cryptBlock(false);
+    StubRoutines::_desede_decryptBlock = generate_desede_cryptBlock(true);
   }
 }
 

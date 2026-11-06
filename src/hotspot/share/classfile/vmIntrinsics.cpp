@@ -475,6 +475,10 @@ bool vmIntrinsics::disabled_by_jvm_flags(vmIntrinsics::ID id) {
   case vmIntrinsics::_descrypt_cipherBlock:
     if (!UseDESIntrinsics) return true;
     break;
+  case vmIntrinsics::_desede_encryptBlock:
+  case vmIntrinsics::_desede_decryptBlock:
+    if (!UseDESedeIntrinsics) return true;
+    break;
   case vmIntrinsics::_cipherBlockChaining_encryptAESCrypt:
   case vmIntrinsics::_cipherBlockChaining_decryptAESCrypt:
     if (!UseAESIntrinsics) return true;

@@ -207,6 +207,7 @@ const TypeFunc* OptoRuntime::_array_sort_Type                     = nullptr;
 const TypeFunc* OptoRuntime::_array_partition_Type                = nullptr;
 const TypeFunc* OptoRuntime::_aescrypt_block_Type                 = nullptr;
 const TypeFunc* OptoRuntime::_descrypt_cipherBlock_Type           = nullptr;
+const TypeFunc* OptoRuntime::_desede_cryptBlock_Type              = nullptr;
 const TypeFunc* OptoRuntime::_cipherBlockChaining_aescrypt_Type   = nullptr;
 const TypeFunc* OptoRuntime::_electronicCodeBook_aescrypt_Type    = nullptr;
 const TypeFunc* OptoRuntime::_counterMode_aescrypt_Type           = nullptr;
@@ -1075,6 +1076,25 @@ static const TypeFunc* make_descrypt_cipherBlock_Type() {
   fields[argp++] = TypePtr::NOTNULL;    // dest
   fields[argp++] = TypePtr::NOTNULL;    // expanded key
   fields[argp++] = TypeInt::INT;        // decrypting
+  assert(argp == TypeFunc::Parms + argcnt, "correct decoding");
+  const TypeTuple* domain = TypeTuple::make(TypeFunc::Parms + argcnt, fields);
+
+  fields = TypeTuple::fields(1);
+  fields[TypeFunc::Parms + 0] = nullptr; // void
+  const TypeTuple* range = TypeTuple::make(TypeFunc::Parms, fields);
+  return TypeFunc::make(domain, range);
+}
+
+static const TypeFunc* make_desede_cryptBlock_Type() {
+  int num_args = 5;
+  int argcnt = num_args;
+  const Type** fields = TypeTuple::fields(argcnt);
+  int argp = TypeFunc::Parms;
+  fields[argp++] = TypePtr::NOTNULL;    // src
+  fields[argp++] = TypePtr::NOTNULL;    // dest
+  fields[argp++] = TypePtr::NOTNULL;    // key1
+  fields[argp++] = TypePtr::NOTNULL;    // key2
+  fields[argp++] = TypePtr::NOTNULL;    // key3
   assert(argp == TypeFunc::Parms + argcnt, "correct decoding");
   const TypeTuple* domain = TypeTuple::make(TypeFunc::Parms + argcnt, fields);
 
@@ -2406,6 +2426,7 @@ void OptoRuntime::initialize_types() {
   _array_partition_Type               = make_array_partition_Type();
   _aescrypt_block_Type                = make_aescrypt_block_Type();
   _descrypt_cipherBlock_Type          = make_descrypt_cipherBlock_Type();
+  _desede_cryptBlock_Type             = make_desede_cryptBlock_Type();
   _cipherBlockChaining_aescrypt_Type  = make_cipherBlockChaining_aescrypt_Type();
   _electronicCodeBook_aescrypt_Type   = make_electronicCodeBook_aescrypt_Type();
   _counterMode_aescrypt_Type          = make_counterMode_aescrypt_Type();

@@ -357,6 +357,7 @@ private:
   bool inline_Class_cast();
   bool inline_aescrypt_Block(vmIntrinsics::ID id);
   bool inline_descrypt_cipherBlock();
+  bool inline_desede_cryptBlock(vmIntrinsics::ID id);
   bool inline_cipherBlockChaining_AESCrypt(vmIntrinsics::ID id);
   bool inline_electronicCodeBook_AESCrypt(vmIntrinsics::ID id);
   bool inline_counterMode_AESCrypt(vmIntrinsics::ID id);

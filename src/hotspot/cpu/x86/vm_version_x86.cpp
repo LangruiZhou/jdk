@@ -1235,6 +1235,9 @@ void VM_Version::get_processor_features() {
   if (FLAG_IS_DEFAULT(UseDESIntrinsics)) {
     FLAG_SET_DEFAULT(UseDESIntrinsics, true);
   }
+  if (FLAG_IS_DEFAULT(UseDESedeIntrinsics)) {
+    FLAG_SET_DEFAULT(UseDESedeIntrinsics, true);
+  }
 #endif
 
   if (UseCLMUL && (UseSSE > 2)) {

@@ -827,6 +827,8 @@ bool C2Compiler::is_intrinsic_supported(vmIntrinsics::ID id) {
   case vmIntrinsics::_aescrypt_encryptBlock:
   case vmIntrinsics::_aescrypt_decryptBlock:
   case vmIntrinsics::_descrypt_cipherBlock:
+  case vmIntrinsics::_desede_encryptBlock:
+  case vmIntrinsics::_desede_decryptBlock:
   case vmIntrinsics::_cipherBlockChaining_encryptAESCrypt:
   case vmIntrinsics::_cipherBlockChaining_decryptAESCrypt:
   case vmIntrinsics::_counterMode_AESCrypt:

@@ -320,6 +320,9 @@ const int ObjectAlignmentInBytes = 8;
   product(bool, UseDESIntrinsics, false, DIAGNOSTIC,                        \
           "Use intrinsics for DES block encryption and decryption")         \
                                                                             \
+  product(bool, UseDESedeIntrinsics, false, DIAGNOSTIC,                     \
+          "Use intrinsics for DESede block encryption and decryption")      \
+                                                                            \
   product(bool, UseAESCTRIntrinsics, false, DIAGNOSTIC,                     \
           "Use intrinsics for the paralleled version of AES/CTR crypto")    \
                                                                             \

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2026, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -26,6 +26,7 @@
 package com.sun.crypto.provider;
 
 import java.security.InvalidKeyException;
+import jdk.internal.vm.annotation.IntrinsicCandidate;
 
 /**
  * This class implements the Triple DES algorithm (DES encryption, followed by
@@ -114,6 +115,12 @@ final class DESedeCrypt extends DESCrypt implements DESConstants {
     void encryptBlock(byte[] plain, int plainOffset,
                  byte[] cipher, int cipherOffset)
     {
+        desedeEncryptBlock(plain, plainOffset, cipher, cipherOffset);
+    }
+
+    @IntrinsicCandidate
+    void desedeEncryptBlock(byte[] plain, int plainOffset,
+                            byte[] cipher, int cipherOffset) {
         expandedKey = key1;
         decrypting = false;
         cipherBlock(plain, plainOffset, buf1, 0);
@@ -144,6 +151,12 @@ final class DESedeCrypt extends DESCrypt implements DESConstants {
     void decryptBlock(byte[] cipher, int cipherOffset,
                  byte[] plain, int plainOffset)
     {
+        desedeDecryptBlock(cipher, cipherOffset, plain, plainOffset);
+    }
+
+    @IntrinsicCandidate
+    void desedeDecryptBlock(byte[] cipher, int cipherOffset,
+                            byte[] plain, int plainOffset) {
         expandedKey = key3;
         decrypting = true;
         cipherBlock(cipher, cipherOffset, buf1, 0);

@@ -740,6 +740,12 @@
   do_stub(compiler, descrypt_cipherBlock)                               \
   do_entry(compiler, descrypt_cipherBlock, descrypt_cipherBlock,        \
            descrypt_cipherBlock)                                        \
+  do_stub(compiler, desede_encryptBlock)                                \
+  do_entry(compiler, desede_encryptBlock, desede_encryptBlock,          \
+           desede_encryptBlock)                                         \
+  do_stub(compiler, desede_decryptBlock)                                \
+  do_entry(compiler, desede_decryptBlock, desede_decryptBlock,          \
+           desede_decryptBlock)                                         \
   do_stub(compiler, cipherBlockChaining_encryptAESCrypt)                \
   do_entry(compiler, cipherBlockChaining_encryptAESCrypt,               \
            cipherBlockChaining_encryptAESCrypt,                         \

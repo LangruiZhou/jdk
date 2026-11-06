@@ -421,6 +421,7 @@ class StubGenerator: public StubCodeGenerator {
 
   // DES intrinsic stubs
   address generate_descrypt_cipherBlock();
+  address generate_desede_cryptBlock(bool decrypting);
   void generate_des_stubs();
 
 
